@@ -2,12 +2,13 @@ Spree Product Feed
 ================
 
 An extension that provides an RSS feed for products. Google Shopper attributes are also implemented.
-An RSS link is automatically appended to the `<head>` tag in the `layouts/spree_application` file.
 
 Supported versions of Spree
 =========
 
-any version of Spree higher than 0.70.x 
+Branch master for 0.70.x
+Branch 2-0-stable for Spree 2.0.x
+Branch 2-3-stable for Spree 2.3.x
 
 Installation
 ===============

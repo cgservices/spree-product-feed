@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_product_feed'
-  s.version     = '1.3.1'
+  s.version     = '0.6'
   s.summary     = 'Spree extension that provides an RSS feed for products'
   s.description = 'A Spree extension that provides an RSS feed for products, with Google Shopper extensions'
   s.required_ruby_version = '>= 1.8.7'
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  s.add_dependency 'spree_core', '>= 1.3.0'
+  s.add_dependency 'spree_core', '>= 2.0.0'
 
   s.add_development_dependency 'capybara', '~> 1.1.2'
   s.add_development_dependency 'coffee-rails'

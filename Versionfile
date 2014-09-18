@@ -8,3 +8,5 @@
 # "0.40.x" => { :tag => "v1.0.0", :version => "1.0.0" }
 
 "0.70.x" => { :branch => "master"}
+"2.0.x" => { :branch => "2-0-stable"}
+"2.3.x" => { :branch => "2-3-stable"}
