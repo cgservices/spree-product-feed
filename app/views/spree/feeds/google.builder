@@ -1,10 +1,10 @@
 xml.instruct! :xml, :version=>"1.0"
 xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
   xml.channel{
-    xml.title("#{Spree::Config[:site_name]}")
-    xml.link("http://#{Spree::Config[:site_url]}")
-    xml.description("Find out about new products first! You'll always be in the know when new products become available")
-    xml.language('en-us')
+    xml.title("#{current_store.domains.split(',').first.capitalize}")
+    xml.link("http://#{current_store.domains.split(',').first.downcase}")
+    xml.description("De Google Shopping Feed van #{current_store.domains.split(',').first.capitalize}")
+    xml.language('nl')
     @products.each do |product|
       xml.item do
         xml.title product.name
