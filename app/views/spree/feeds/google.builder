@@ -1,3 +1,13 @@
+google_product_category = {
+  'condooms' => 'Gezondheid & Persoonlijke verzorging > Gezondheidszorg > Voorbehoedsmiddelen > Condooms',
+  'glijmiddel' => 'Gezondheid & persoonlijke verzorging > Persoonlijke verzorging > Glijmiddelen',
+  'drogist' => 'Gezondheid & Persoonlijke verzorging > Gezondheidszorg > Voorbehoedsmiddelen',
+  'massage' => 'Gezondheid & Persoonlijke verzorging &gt; Persoonlijke verzorging > Massage &amp; Ontspanning',
+  'zwangerschapstesten' => 'Gezondheid & Persoonlijke verzorging > Gezondheidszorg > Zwangerschapstests',
+  'sextoys' => 'Volwassenen > Erotisch > Seksspeeltjes',
+  'overig' => 'Volwassenen > Erotisch'
+}
+
 xml.instruct! :xml, :version=>"1.0"
 xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
   xml.channel{
@@ -17,17 +27,21 @@ xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
         image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
         xml.g :image_link, "#{request.protocol}#{request.host_with_port}#{image.attachment.url(:large)}" if image.present?
 
-        xml.g :price, "#{product.original_price} EUR" # originele prijs
-        xml.g :sale_price, "#{product.price} EUR" # aanbiedingsprijs
-        xml.g :gtin, product.ean_code unless product.ean_code.blank?
-        xml.g :color, product.property('color')
-        xml.g :brand, product.property('brand')
+        xml.g :price, "#{product.original_price}" # originele prijs
+        xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
+        gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
+        xml.g :gtin, gtin
+        xml.g :color, product.property('color').andand.strip
+        xml.g :brand, product.property('brand').andand.strip
         xml.g :quantity, 10
         xml.g :availability, 'in stock'
         xml.g :online_only, 'y'
-        xml.g :product_type, product.taxons.where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.join(' > ')
-        condition = product.available_on < 1.month.ago ? 'retail' : 'new'
-        xml.g :condition, condition
+        xml.g :product_type, product.taxons.by_store(current_store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(current_store).where(is_brand: false).andand.first.andand.name).andand.join(' > ')
+
+        product_taxon = product.taxons.by_store(current_store).where(is_brand: false).andand.first.andand.name.andand.downcase || 'overig'
+        xml.g :google_product_category, google_product_category.has_key?(product_taxon) ? google_product_category[product_taxon] : google_product_category['overig']
+
+        xml.g :condition, 'new'
         xml.g :id, product.id
         xml.g :shipping do
           xml.g :country, 'NL'

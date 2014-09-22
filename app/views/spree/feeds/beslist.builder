@@ -3,8 +3,8 @@ xml.root{
   @products.each do |product|
     xml.product do
       xml.Titel product.name
-      xml.Categorie product.taxons.where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.join('/')
-      xml.Merk product.property('brand')
+      xml.Categorie product.taxons.by_store(current_store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(current_store).where(is_brand: false).andand.first.andand.name).andand.join('/')
+      xml.Merk product.property('brand').andand.strip
       xml.Omschrijving simple_format(product.description)
 
       affiliate_id = CgConfig::FEED[:affiliate][:beslist]
@@ -12,9 +12,10 @@ xml.root{
 
       image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
       xml.tag! 'Image-locatie', "#{request.protocol}#{request.host_with_port}#{image.attachment.url(:large)}" if image.present?
-      xml.Portokosten 0
+      xml.Portokosten '0.00'
       xml.Levertijd '1-3 werkdagen'
-      xml.EAN product.ean_code
+      ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
+      xml.EAN ean_code
 
       xml.Prijs "#{product.price} EUR" # aanbiedingsprijs
       xml.Winkelproductcode product.id
