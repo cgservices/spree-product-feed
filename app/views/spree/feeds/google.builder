@@ -31,7 +31,7 @@ xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
         xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
         gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
         xml.g :gtin, gtin
-        xml.g :color, product.property('color').andand.strip
+        xml.g :color, product.property('color').andand.strip unless product.property('color').andand.strip.blank?
         xml.g :brand, product.property('brand').andand.strip
         xml.g :quantity, 10
         xml.g :availability, 'in stock'
@@ -45,7 +45,6 @@ xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
         xml.g :id, product.id
         xml.g :shipping do
           xml.g :country, 'NL'
-          xml.g :services, 'Standard'
           xml.g :price, '0.00'
         end
         xml.g :adult, 'TRUE'
