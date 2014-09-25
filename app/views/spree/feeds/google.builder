@@ -29,7 +29,11 @@ xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
 
         xml.g :price, "#{product.original_price}" # originele prijs
         xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
-        gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
+        if product.has_variants?
+          gtin = product.variants.first.andand.ean_code.andand.strip.blank? ? '0' : product.variants.first.andand.ean_code.andand.strip
+        else
+          gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
+        end
         xml.g :gtin, gtin
         xml.g :color, product.property('color').andand.strip unless product.property('color').andand.strip.blank?
         xml.g :brand, product.property('brand').andand.strip
