@@ -27,8 +27,8 @@ xml.rss(:version=>"2.0", "xmlns:g" => "http://base.google.com/ns/1.0"){
         image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
         xml.g :image_link, "#{request.protocol}#{request.host_with_port}#{image.attachment.url(:large)}" if image.present?
 
-        xml.g :price, "#{product.original_price(current_store)}" # originele prijs
-        xml.g :sale_price, "#{product.price(current_store)}" # aanbiedingsprijs
+        xml.g :price, "#{product.original_price}" # originele prijs
+        xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
         if product.has_variants?
           gtin = product.variants.first.andand.ean_code.andand.strip.blank? ? '0' : product.variants.first.andand.ean_code.andand.strip
         else

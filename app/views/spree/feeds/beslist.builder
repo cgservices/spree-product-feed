@@ -17,7 +17,7 @@ xml.root{
       ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
       xml.EAN ean_code
 
-      xml.Prijs "#{product.price(current_store)} EUR" # aanbiedingsprijs
+      xml.Prijs "#{product.price} EUR" # aanbiedingsprijs
       xml.Winkelproductcode product.id
       xml.Kleur Spree.t(product.property('color').to_sym) unless product.property('color').blank?
 
