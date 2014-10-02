@@ -77,6 +77,7 @@ namespace :feeds do
   task beslist: :environment do
     Spree::Store.all.each do |store|
 
+      # TODO:: This should be written to a tmp file so we don't overwrite the current xml
       file = File.new(Rails.root.join(CgConfig::PRODUCT_FEEDS[:asset_path],"#{store.code}_beslist.xml"), "w")
 
       xml = Builder::XmlMarkup.new(target: file, indent: 2)
