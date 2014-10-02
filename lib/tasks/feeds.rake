@@ -25,47 +25,43 @@ namespace :feeds do
           xml.link("http://#{store.domains.split(',').first.downcase}")
           xml.description("De Google Shopping Feed van #{store.domains.split(',').first.capitalize}")
           xml.language('nl')
-          Spree::Product.for_xml_feed(store.id).in_groups_of(100) do |group|
-            xml_products = Spree::Product.where(id: group.map{|g| g.andand.id}.compact).includes(:variants).includes(product_properties: :property).where('spree_properties.name' => ['brand', 'color']).includes(:prices).where('spree_prices.currency' => 'EUR')
+          Spree::Product.by_store(store).active.available.each do |product|
+            xml.item do
+              xml.title product.name
+              xml.description simple_format(product.description)
+              xml.author store.domains.split(',').first.capitalize
+              xml.pubDate (product.available_on || product.created_at).strftime("%a, %d %b %Y %H:%M:%S %z")
+              affiliate_id = CgConfig::FEED[:affiliate][:google]
+              xml.link "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}"
 
-            xml_products.each do |product|
-              xml.item do
-                xml.title product.name
-                xml.description simple_format(product.description)
-                xml.author store.domains.split(',').first.capitalize
-                xml.pubDate (product.available_on || product.created_at).strftime("%a, %d %b %Y %H:%M:%S %z")
-                affiliate_id = CgConfig::FEED[:affiliate][:google]
-                xml.link "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}"
+              image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
+              xml.g :image_link, "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
 
-                image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
-                xml.g :image_link, "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
-
-                xml.g :price, "#{product.original_price}" # originele prijs
-                xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
-                if product.has_variants?
-                  gtin = product.variants.first.andand.ean_code.andand.strip.blank? ? '0' : product.variants.first.andand.ean_code.andand.strip
-                else
-                  gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
-                end
-                xml.g :gtin, gtin
-                xml.g :color, product.property('color').andand.strip unless product.property('color').andand.strip.blank?
-                xml.g :brand, product.property('brand').andand.strip
-                xml.g :quantity, 10
-                xml.g :availability, 'in stock'
-                xml.g :online_only, 'y'
-                xml.g :product_type, product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join(' > ')
-
-                product_taxon = product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name.andand.downcase || 'overig'
-                xml.g :google_product_category, google_product_category.has_key?(product_taxon) ? google_product_category[product_taxon] : google_product_category['overig']
-
-                xml.g :condition, 'new'
-                xml.g :id, product.id
-                xml.g :shipping do
-                  xml.g :country, 'NL'
-                  xml.g :price, '0.00'
-                end
-                xml.g :adult, 'TRUE'
+              xml.g :price, "#{product.original_price}" # originele prijs
+              xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
+              if product.has_variants?
+                gtin = product.variants.first.andand.ean_code.andand.strip.blank? ? '0' : product.variants.first.andand.ean_code.andand.strip
+              else
+                gtin = product.ean_code.andand.strip.blank? ? '0' : product.ean_code.andand.strip
               end
+              xml.g :gtin, gtin
+              xml.g :color, product.property('color').andand.strip unless product.property('color').andand.strip.blank?
+              xml.g :brand, product.property('brand').andand.strip
+              xml.g :quantity, 10
+              xml.g :availability, 'in stock'
+              xml.g :online_only, 'y'
+              xml.g :product_type, product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join(' > ')
+
+              product_taxon = product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name.andand.downcase || 'overig'
+              xml.g :google_product_category, google_product_category.has_key?(product_taxon) ? google_product_category[product_taxon] : google_product_category['overig']
+
+              xml.g :condition, 'new'
+              xml.g :id, product.id
+              xml.g :shipping do
+                xml.g :country, 'NL'
+                xml.g :price, '0.00'
+              end
+              xml.g :adult, 'TRUE'
             end
           end
         }
@@ -83,29 +79,25 @@ namespace :feeds do
       xml = Builder::XmlMarkup.new(target: file, indent: 2)
       xml.instruct! :xml, :version=>"1.0"
       xml.root{
-        Spree::Product.for_xml_feed(store.id).in_groups_of(100) do |group|
-          xml_products = Spree::Product.where(id: group.map{|g| g.andand.id}.compact).includes(:variants).includes(product_properties: :property).where('spree_properties.name' => ['brand', 'color']).includes(:prices).where('spree_prices.currency' => 'EUR')
+        Spree::Product.by_store(store).active.available.each do |product|
+          xml.Titel product.name
+          xml.Categorie product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join('/')
+          xml.Merk product.property('brand').andand.strip
+          xml.Omschrijving simple_format(product.description)
 
-          xml_products.each do |product|
-            xml.Titel product.name
-            xml.Categorie product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join('/')
-            xml.Merk product.property('brand').andand.strip
-            xml.Omschrijving simple_format(product.description)
+          affiliate_id = CgConfig::FEED[:affiliate][:beslist]
+          xml.Deeplink "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}&utm_source=beslistnl&utm_medium=cpa&utm_campaign=beslist-CPA"
 
-            affiliate_id = CgConfig::FEED[:affiliate][:beslist]
-            xml.Deeplink "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}&utm_source=beslistnl&utm_medium=cpa&utm_campaign=beslist-CPA"
+          image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
+          xml.tag! 'Image-locatie', "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
+          xml.Portokosten '0.00'
+          xml.Levertijd '1-3 werkdagen'
+          ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
+          xml.EAN ean_code
 
-            image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
-            xml.tag! 'Image-locatie', "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
-            xml.Portokosten '0.00'
-            xml.Levertijd '1-3 werkdagen'
-            ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
-            xml.EAN ean_code
-
-            xml.Prijs "#{product.price} EUR" # aanbiedingsprijs
-            xml.Winkelproductcode product.id
-            xml.Kleur Spree.t(product.property('color').to_sym) unless product.property('color').blank?
-          end
+          xml.Prijs "#{product.price} EUR" # aanbiedingsprijs
+          xml.Winkelproductcode product.id
+          xml.Kleur Spree.t(product.property('color').to_sym) unless product.property('color').blank?
         end
       }
     end
