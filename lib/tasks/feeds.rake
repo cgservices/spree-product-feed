@@ -78,8 +78,8 @@ namespace :feeds do
 
       xml = Builder::XmlMarkup.new(target: file, indent: 2)
       xml.instruct! :xml, :version=>"1.0"
-      xml.root{
-        Spree::Product.by_store(store).active.available.each do |product|
+      Spree::Product.by_store(store).active.available.each do |product|
+        xml.root{
           xml.Titel product.name
           xml.Categorie product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join('/')
           xml.Merk product.property('brand').andand.strip
@@ -98,8 +98,8 @@ namespace :feeds do
           xml.Prijs "#{product.price} EUR" # aanbiedingsprijs
           xml.Winkelproductcode product.id
           xml.Kleur Spree.t(product.property('color').to_sym) unless product.property('color').blank?
-        end
-      }
+        }
+      end
     end
   end
 end
