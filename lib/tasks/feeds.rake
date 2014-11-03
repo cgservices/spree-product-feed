@@ -26,7 +26,6 @@ namespace :feeds do
           xml.description("De Google Shopping Feed van #{store.domains.split(',').first.capitalize}")
           xml.language('nl')
           Spree::Product.by_store(store).active.available.uniq.each do |product|
-            binding.pry
             xml.item do
               xml.title product.name(:nl) || product.name(:en)
               xml.description simple_format(product.description)
