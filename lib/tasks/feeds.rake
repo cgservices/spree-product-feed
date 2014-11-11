@@ -53,7 +53,11 @@ namespace :feeds do
               xml.g :product_type, product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join(' > ')
 
               product_taxon = product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name.andand.downcase || 'overig'
-              xml.g :google_product_category, google_product_category.has_key?(product_taxon) ? google_product_category[product_taxon] : google_product_category['overig']
+              if product.google_product_category.present?
+                xml.g :google_product_category, product.google_product_category
+              else
+                xml.g :google_product_category, google_product_category.has_key?(product_taxon) ? google_product_category[product_taxon] : google_product_category['overig']
+              end
 
               xml.g :condition, 'new'
               xml.g :id, product.id
@@ -61,7 +65,7 @@ namespace :feeds do
                 xml.g :country, 'NL'
                 xml.g :price, '0.00'
               end
-              xml.g :adult, 'TRUE'
+              xml.g :adult, product.adult ? 'TRUE' : 'FALSE'
             end
           end
         }

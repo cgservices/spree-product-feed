@@ -1,0 +1,20 @@
+<%= form_tag admin_products_google_shopping_category_imports_url, method: :post, multipart: true do %>
+  <fieldset data-hook="new_image">
+    <legend align="center"><%= Spree.t(:new_import) %></legend>
+      <div data-hook="admin_image_form_fields">
+        <div class="four columns alpha">
+          <div data-hook="file" class="field">
+            <%= label_tag Spree.t(:csv_file) %><br>
+            <%= file_field_tag :csv_file %>
+          </div>
+      </div>
+
+      <div class="clear"></div>
+
+      <div class="form-buttons filter-actions actions" data-hook="buttons">
+        <%= button Spree.t('actions.upload'), 'icon-file' %>
+        <span class="or"><%= Spree.t(:or) %></span>
+        <%= link_to_with_icon 'icon-remove', Spree.t('actions.cancel'), admin_products_url, :id => 'cancel_link', :class => 'button' %>
+      </div>
+  </fieldset>
+<% end %>

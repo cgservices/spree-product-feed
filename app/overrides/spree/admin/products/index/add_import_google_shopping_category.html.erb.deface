@@ -1,0 +1,2 @@
+<!-- insert_after "#new_product_link" -->
+<%= button_link_to Spree.t(:import_google_shopping_categories), new_admin_products_google_shopping_category_import_url, { :icon => 'icon-plus', :id => 'admin_import_google_shopping_categories' } %>

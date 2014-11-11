@@ -1,0 +1,5 @@
+en:
+  spree:
+    new_import: New Import
+    csv_file: CSV File
+    google_shopping_category_imports_success: File successfuly imported

@@ -1,0 +1,5 @@
+nl:
+  spree:
+    new_import: Nieuw bestand importeren
+    csv_file: CSV Bestand
+    google_shopping_category_imports_success: Bestand succesvol geimporteerd
