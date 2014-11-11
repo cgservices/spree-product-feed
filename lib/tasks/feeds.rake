@@ -25,9 +25,9 @@ namespace :feeds do
           xml.link("http://#{store.domains.split(',').first.downcase}")
           xml.description("De Google Shopping Feed van #{store.domains.split(',').first.capitalize}")
           xml.language('nl')
-          Spree::Product.by_store(store).active.available.each do |product|
+          Spree::Product.by_store(store).active.available.uniq.each do |product|
             xml.item do
-              xml.title product.name
+              xml.title product.name(:nl) || product.name(:en)
               xml.description simple_format(product.description)
               xml.author store.domains.split(',').first.capitalize
               xml.pubDate (product.available_on || product.created_at).strftime("%a, %d %b %Y %H:%M:%S %z")
@@ -37,7 +37,7 @@ namespace :feeds do
               image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
               xml.g :image_link, "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
 
-              xml.g :price, "#{product.original_price}" # originele prijs
+              xml.g :price, "#{product.original_price(store)}" # originele prijs
               xml.g :sale_price, "#{product.price}" # aanbiedingsprijs
               if product.has_variants?
                 gtin = product.variants.first.andand.ean_code.andand.strip.blank? ? '0' : product.variants.first.andand.ean_code.andand.strip
@@ -83,12 +83,12 @@ namespace :feeds do
       xml = Builder::XmlMarkup.new(target: file, indent: 2)
       xml.instruct! :xml, :version=>"1.0"
       xml.root{
-        Spree::Product.by_store(store).active.available.each do |product|
+        Spree::Product.by_store(store).active.available.uniq.each do |product|
           xml.Product{
-            xml.Titel product.name
+            xml.Titel product.name(:nl) || product.name(:en)
             xml.Categorie product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join('/')
             xml.Merk product.property('brand').andand.strip
-            xml.Omschrijving simple_format(product.description)
+            xml.Omschrijving simple_format(product.description(store))
 
             affiliate_id = CgConfig::FEED[:affiliate][:beslist]
             xml.Deeplink "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}&utm_source=beslistnl&utm_medium=cpa&utm_campaign=beslist-CPA"
