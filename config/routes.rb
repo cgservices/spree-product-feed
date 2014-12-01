@@ -3,7 +3,7 @@ Spree::Core::Engine.routes.draw do
 
   namespace :admin do
     namespace :products do
-      resources :google_shopping_category_imports, only: [:new, :create]
+      resources :shopping_feeds_imports, only: [:new, :create]
     end
   end
 end
