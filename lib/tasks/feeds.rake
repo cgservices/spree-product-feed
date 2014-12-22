@@ -86,7 +86,7 @@ namespace :feeds do
         Spree::Product.by_store(store).active.available.uniq.each do |product|
           xml.Product{
             xml.Titel product.name(:nl) || product.name(:en)
-            if product.google_shopping_category.present?
+            if product.beslist_category.present?
               xml.Category product.beslist_category
             else
               xml.Categorie product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join('/')
