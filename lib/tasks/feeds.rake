@@ -94,8 +94,8 @@ namespace :feeds do
             xml.Merk product.property('brand').andand.strip
             xml.Omschrijving simple_format(product.description(store))
 
-            affiliate_id = CgConfig::FEED[:affiliate][:beslist]
-            xml.Deeplink "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id[store.code.to_sym]}&utm_source=beslistnl&utm_medium=cpa&utm_campaign=beslist-CPA"
+            affiliate_id = product.affiliate_id || CgConfig::FEED[:affiliate][:beslist][store.code.to_sym]
+            xml.Deeplink "http://#{store.domains.split(',').first.downcase}/#{product.permalink}?aid=#{affiliate_id}&utm_source=beslistnl&utm_medium=cpa&utm_campaign=beslist-CPA"
 
             image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
             xml.tag! 'Image-locatie', "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?

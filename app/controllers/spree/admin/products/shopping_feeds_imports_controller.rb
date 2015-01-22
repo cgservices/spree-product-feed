@@ -16,6 +16,9 @@ module Spree
               product.update_attribute(:beslist_category, product_attributes['beslist_category']) unless product_attributes['beslist_category'].blank?
               product.update_attribute(:adult, %w(true).include?(product_attributes['adult']) ? 1 : 0) unless product_attributes['adult'].blank?
               product.update_attribute(:ean_code, product_attributes['ean_code']) unless product_attributes['ean_code'].blank?
+              if affiliate = Spree::Affiliate.where(name: product_attributes['beslist_aid']).first
+                product.update_attribute(:affiliate_id, affiliate.id) unless product_attributes['beslist_aid'].blank?
+              end
             end
           end
 
