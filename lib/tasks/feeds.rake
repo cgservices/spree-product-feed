@@ -61,10 +61,7 @@ namespace :feeds do
 
               xml.g :condition, 'new'
               xml.g :id, product.id
-              xml.g :shipping do
-                xml.g :country, 'NL'
-                xml.g :price, '1.99'
-              end
+              xml.g :shipping
               xml.g :adult, product.adult ? 'TRUE' : 'FALSE'
             end
           end
@@ -99,7 +96,7 @@ namespace :feeds do
 
             image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
             xml.tag! 'Image-locatie', "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
-            xml.Portokosten '1.99'
+            xml.Portokosten '0'
             xml.Levertijd '1-3 werkdagen'
             ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
             xml.EAN ean_code
