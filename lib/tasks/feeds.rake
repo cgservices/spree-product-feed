@@ -14,6 +14,7 @@ namespace :feeds do
     }
 
     Spree::Store.all.each do |store|
+      next unless %w(cdf).include?(store.group)
 
       file = File.new(Rails.root.join(CgConfig::PRODUCT_FEEDS[:asset_path],"#{store.code}_google.xml"), "w")
 
@@ -47,8 +48,9 @@ namespace :feeds do
               xml.g :gtin, gtin
               xml.g :color, product.property('color').andand.strip unless product.property('color').andand.strip.blank?
               xml.g :brand, product.property('brand').andand.strip
-              xml.g :quantity, 10
-              xml.g :availability, 'in stock'
+              availability = product.total_on_hand > 0 ? 'in stock' : 'out of stock'
+              xml.g :quantity, product.total_on_hand
+              xml.g :availability, availability
               xml.g :online_only, 'y'
               xml.g :product_type, product.taxons.by_store(store).where(is_brand: false).andand.first.andand.ancestors.andand.map{ |t| t.name }.andand.push(product.taxons.by_store(store).where(is_brand: false).andand.first.andand.name).andand.join(' > ')
 
@@ -61,7 +63,11 @@ namespace :feeds do
 
               xml.g :condition, 'new'
               xml.g :id, product.id
-              xml.g :shipping
+              xml.g :shipping do
+                xml.g :country, 'NL'
+                shipping_costs = product.andand.shipping_category.andand.shipping_methods.andand.first.andand.calculator.andand.preferred_amount.andand.to_s || '1,99'
+                xml.g :price, shipping_costs
+              end
               xml.g :adult, product.adult ? 'TRUE' : 'FALSE'
             end
           end
@@ -73,6 +79,7 @@ namespace :feeds do
   desc "Create beslist feed"
   task beslist: :environment do
     Spree::Store.all.each do |store|
+      next unless %w(cdf).include?(store.group)
 
       # TODO:: This should be written to a tmp file so we don't overwrite the current xml
       file = File.new(Rails.root.join(CgConfig::PRODUCT_FEEDS[:asset_path],"#{store.code}_beslist.xml"), "w")
@@ -96,8 +103,10 @@ namespace :feeds do
 
             image = product.andand.images.andand.first || product.andand.variants.andand.collect(&:images).flatten.first
             xml.tag! 'Image-locatie', "http://#{store.domains.split(',').first.downcase}/#{image.attachment.url(:large)}" if image.present?
-            xml.Portokosten '0'
-            xml.Levertijd '1-3 werkdagen'
+            shipping_costs = product.andand.shipping_category.andand.shipping_methods.andand.first.andand.calculator.andand.preferred_amount.andand.to_s || '1,99'
+            xml.Portokosten shipping_costs
+            shipping_time = product.total_on_hand > 0 ? '1-3 werkdagen' : 'Niet op voorraad'
+            xml.Levertijd shipping_time
             ean_code = product.ean_code.andand.strip.blank? ? '{leeg}' : product.ean_code.andand.strip
             xml.EAN ean_code
 
