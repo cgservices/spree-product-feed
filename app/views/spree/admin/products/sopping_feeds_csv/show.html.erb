@@ -1,0 +1,24 @@
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Google Category</th>
+    <th>Beslist Category</th>
+    <th>Adult</th>
+    <th>EAN Code</th>
+    <th>Beslist AID</th>
+  </tr>
+  <% @products.each do |product| %>
+    <tr>
+      <td><%= product.id %></td>
+      <td><%= product.google_category %></td>
+      <td><%= product.beslist_category %></td>
+      <td><%= product.adult %></td>
+      <td><%= product.ean_code %></td>
+      <td>
+        <% if affiliate = Spree::Affiliate.find_by_id(p.affiliate_id) %>
+          <%= affiliate.name %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+</table>

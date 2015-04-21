@@ -1,0 +1,2 @@
+<!-- insert_after "#new_product_link" -->
+<%= button_link_to Spree.t(:export_csv), admin_products_url(format: 'csv'), { :icon => 'icon-file', :id => 'admin_products_shopping_feeds_csv' } %>

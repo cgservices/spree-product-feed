@@ -1,0 +1,20 @@
+<div class="field" data-hook="google_shopping_category">
+  <%= f.field_container :google_shopping_category do %>
+    <%= f.label :google_shopping_category, Spree.t(:google_shopping_category) %> <br />
+    <%= f.text_field :google_shopping_category, :value => @product.google_shopping_category, :class => 'fullwidth' %>
+    <%= f.error_message_on :google_shopping_category %>
+  <% end %>
+</div>
+<div class="field" data-hook="beslist_category">
+  <%= f.field_container :beslist_category do %>
+    <%= f.label :beslist_category, Spree.t(:beslist_category) %> <br />
+    <%= f.text_field :beslist_category, :value => @product.beslist_category, :class => 'fullwidth' %>
+    <%= f.error_message_on :beslist_category %>
+  <% end %>
+</div>
+<div class="field" data-hook="adult">
+  <%= f.field_container :adult do %>
+    <%= f.label :adult, Spree.t(:adult) %> <br />
+    <%= f.check_box :adult, :value => @product.adult, :class => 'fullwidth' %>
+  <% end %>
+</div>
