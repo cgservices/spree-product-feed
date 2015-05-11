@@ -1,4 +1,7 @@
 Spree::Product.class_eval do
+
+  attr_accessible :google_shopping_category, :beslist_category, :adult
+
   def self.to_csv
     CSV.generate do |csv|
       csv << %w(id google_category beslist_category adult ean_code beslist_aid)
